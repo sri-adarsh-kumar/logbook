@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http2.Http2StreamChannel;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import lombok.AllArgsConstructor;
 import org.zalando.logbook.HttpHeaders;
 import org.zalando.logbook.Origin;
@@ -48,10 +47,8 @@ final class Response
 
     @Override
     public HttpHeaders getHeaders() {
-        final io.netty.handler.codec.http.HttpHeaders raw = response.headers().copy();
-        raw.remove(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
-        raw.remove(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text());
-        raw.remove(HttpConversionUtil.ExtensionHeaderNames.PATH.text());
+        final var raw =
+                SyntheticHttp2Headers.stripIfHttp2Stream(context.channel(), response.headers().copy());
         return copyOf(raw);
     }
 

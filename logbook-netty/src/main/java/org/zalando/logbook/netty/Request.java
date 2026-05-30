@@ -7,7 +7,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http2.Http2StreamChannel;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.SslHandler;
 import lombok.AllArgsConstructor;
 import org.zalando.logbook.HttpHeaders;
@@ -117,10 +116,8 @@ final class Request implements org.zalando.logbook.HttpRequest, HeaderSupport {
 
     @Override
     public HttpHeaders getHeaders() {
-        final io.netty.handler.codec.http.HttpHeaders raw = request.headers().copy();
-        raw.remove(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
-        raw.remove(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text());
-        raw.remove(HttpConversionUtil.ExtensionHeaderNames.PATH.text());
+        final var raw =
+                SyntheticHttp2Headers.stripIfHttp2Stream(context.channel(), request.headers().copy());
         return copyOf(raw);
     }
 

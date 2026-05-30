@@ -1,6 +1,7 @@
 package org.zalando.logbook.netty;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import org.junit.jupiter.api.Test;
@@ -127,7 +128,7 @@ class Http2AwareHandlerRegistrarTest {
         return conn;
     }
 
-    private <T extends io.netty.channel.ChannelHandler> Connection mockConnectionWithHandler(Class<T> handlerClass) {
+    private <T extends ChannelHandler> Connection mockConnectionWithHandler(Class<T> handlerClass) {
         Connection conn = mock(Connection.class);
         Channel channel = mock(Channel.class);
         ChannelPipeline pipeline = mock(ChannelPipeline.class);
