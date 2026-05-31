@@ -25,6 +25,15 @@ public final class Http2AwareHandlerRegistrar {
 
     private Http2AwareHandlerRegistrar() {}
 
+    /**
+     * Decorates the given Reactor Netty {@link HttpClient} with Logbook pipeline instrumentation.
+     * Installs a {@link LogbookClientHandler} on HTTP/1.1 connections after the channel is configured
+     * and on HTTP/2 streams once stream-specific handlers are available.
+     *
+     * @param httpClient the client to decorate with Logbook client-side logging
+     * @param logbook the Logbook instance used by the installed {@link LogbookClientHandler}
+     * @return a decorated {@link HttpClient} that adds Logbook client handlers for HTTP/1.1 and HTTP/2 traffic
+     */
     public static HttpClient installOnClient(final HttpClient httpClient, final Logbook logbook) {
         return httpClient.observe((connection, state) -> {
             if (state == HttpClientState.STREAM_CONFIGURED) {
@@ -39,6 +48,15 @@ public final class Http2AwareHandlerRegistrar {
         });
     }
 
+    /**
+     * Decorates the given Reactor Netty {@link HttpServer} with Logbook pipeline instrumentation.
+     * Installs a {@link LogbookServerHandler} after the server channel is configured so inbound
+     * requests and outbound responses are logged for the connection.
+     *
+     * @param httpServer the server to decorate with Logbook server-side logging
+     * @param logbook the Logbook instance used by the installed {@link LogbookServerHandler}
+     * @return a decorated {@link HttpServer} that adds a Logbook server handler to configured channels
+     */
     public static HttpServer installOnServer(final HttpServer httpServer, final Logbook logbook) {
         return httpServer.observe((connection, state) -> {
             if (state == ConnectionObserver.State.CONFIGURED) {
